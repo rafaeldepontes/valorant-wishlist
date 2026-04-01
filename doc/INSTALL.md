@@ -5,7 +5,7 @@
 Run this in your terminal:
 
 ```bash
-$ py -m venv .venv
+py -m venv .venv
 .\.venv\Scripts\activate.bat
 pip install -r requirements.txt
 ```
