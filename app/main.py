@@ -1,6 +1,9 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
+from fastapi.responses import RedirectResponse
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
@@ -28,3 +31,7 @@ app.add_middleware(
 )
 
 app.include_router(api_router)
+
+@app.get("/")
+async def redirect_typer():
+    return RedirectResponse(settings.url_api + "/docs")

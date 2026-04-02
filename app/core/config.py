@@ -10,5 +10,6 @@ class Settings(BaseSettings):
     skins_cache_ttl: int = 3600
     cors_origins: list[str] = ["*"]
     rate_limit: str = "20/minute"
+    url_api: str = os.environ.get("API_URL", "http://localhost:8000")
 
 settings = Settings()
