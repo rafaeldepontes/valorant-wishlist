@@ -17,7 +17,7 @@ pip install -r requirements.txt
 To run the application, just copy and paste it:
 
 ```bash
-# Not running the "venv"
+# Not running the "venv":
 .\.venv\Scripts\uvicorn server:app --reload
 
 # "venv" running:

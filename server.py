@@ -47,7 +47,7 @@ across the application.
 '''
 @app.get("/skins")
 @limiter.limit("20/minute")
-async def read_root(request: Request): #
+async def read_root(request: Request):
     if skin_cache.len() == 0:
         await skin_cache.load()
     return skin_cache.list
