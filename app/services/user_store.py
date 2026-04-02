@@ -30,11 +30,6 @@ class UserStore:
         self.data[user_id]["updated_at"] = now_iso()
         return self.data[user_id]
 
-    def increment_count(self, user_id: str, n: int) -> None:
-        if user_id not in self.data:
-            raise KeyError("user not found")
-
-        self.data[user_id].wishlist_count = n
 
     def get(self, user_id: str) -> dict[str, Any]:
         if user_id not in self.data:
