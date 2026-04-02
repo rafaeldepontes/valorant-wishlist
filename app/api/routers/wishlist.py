@@ -8,6 +8,38 @@ from app.services.wishlist_store import WishlistStore
 router = APIRouter(prefix="/wishlist", tags=["Wishlist"])
 
 
+@router.get("/{user_id}", response_model=list[WishlistOut])
+async def get_wishlist(
+    request: Request,
+    user_id: str,
+    skin_cache: SkinCache = Depends(get_skin_cache),
+    store: WishlistStore = Depends(get_wishlist_store),
+):
+    items = await store.get(user_id)
+    result = []
+
+    for item in items:
+        skin = await skin_cache.get(item["item_id"])
+        if not skin:
+            continue
+
+        result.append({
+            "user_id": user_id,
+            "item_id": item["item_id"],
+            "notes": item.get("notes"),
+            "priority": item.get("priority", 1),
+            "notify_on_sale": item.get("notify_on_sale", False),
+            "status": item["status"],
+            "created_at": item["created_at"],
+            "updated_at": item["updated_at"],
+            "weapon_name": skin["weapon_name"],
+            "skin_name": skin["skin_name"],
+            "image": skin.get("image"),
+        })
+
+    return result
+
+
 @router.post("", response_model=WishlistOut, status_code=status.HTTP_201_CREATED)
 async def add_wishlist(
     request: Request,
@@ -40,38 +72,6 @@ async def add_wishlist(
         "skin_name": skin["skin_name"],
         "image": skin.get("image"),
     }
-
-
-@router.get("/{user_id}", response_model=list[WishlistOut])
-async def get_wishlist(
-    request: Request,
-    user_id: str,
-    skin_cache: SkinCache = Depends(get_skin_cache),
-    store: WishlistStore = Depends(get_wishlist_store),
-):
-    items = await store.get(user_id)
-    result = []
-
-    for item in items:
-        skin = await skin_cache.get(item["item_id"])
-        if not skin:
-            continue
-
-        result.append({
-            "user_id": user_id,
-            "item_id": item["item_id"],
-            "notes": item.get("notes"),
-            "priority": item.get("priority", 1),
-            "notify_on_sale": item.get("notify_on_sale", False),
-            "status": item["status"],
-            "created_at": item["created_at"],
-            "updated_at": item["updated_at"],
-            "weapon_name": skin["weapon_name"],
-            "skin_name": skin["skin_name"],
-            "image": skin.get("image"),
-        })
-
-    return result
 
 
 @router.patch("/{user_id}/{item_id}", response_model=WishlistOut)
