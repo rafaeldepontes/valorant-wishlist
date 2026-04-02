@@ -41,9 +41,9 @@ app.add_middleware(
     )
 
 '''
-This has a rate limit of 20 request per
-minute and this should be or default value
-through the application.
+This has a rate limit of 20 requests per
+minute, and this should be the default value
+across the application.
 '''
 @app.get("/skins")
 @limiter.limit("20/minute")
