@@ -18,8 +18,8 @@ To run the application, just copy and paste it:
 
 ```bash
 # Not running the "venv":
-.\.venv\Scripts\uvicorn server:app --reload
+.\.venv\Scripts\uvicorn app.main:app --reload
 
 # "venv" running:
-uvicorn server:app --reload
+uvicorn app.main:app --reload
 ```
