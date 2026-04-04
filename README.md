@@ -8,6 +8,7 @@ Project developed for UNIFOR (University of Fortaleza), a RESTful API that allow
 - Add items to a user's wishlist
 - Update wishlist entries
 - Remove wishlist entries
+- Create and manage skin reviews
 - Retrieve available skins
 - Check API health
 
@@ -35,6 +36,16 @@ Project developed for UNIFOR (University of Fortaleza), a RESTful API that allow
 | GET    | /wishlist/{user_id}           | Lists all wishlist items for a user |
 | PATCH  | /wishlist/{user_id}/{item_id} | Updates a wishlist item             |
 | DELETE | /wishlist/{user_id}/{item_id} | Deletes a wishlist item             |
+
+### Reviews
+
+| Method | Route                  | Description                        |
+| ------ | ---------------------- | ---------------------------------- |
+| POST   | /reviews               | Creates a new review for a skin    |
+| GET    | /reviews/skin/{item_id} | Lists all reviews for a skin       |
+| GET    | /reviews/user/{user_id} | Lists all reviews by a user        |
+| PATCH  | /reviews/{review_id}   | Updates a review                   |
+| DELETE | /reviews/{review_id}   | Deletes a review                   |
 
 ### Health
 
@@ -124,6 +135,32 @@ Returned fields:
 - `weapon_name`
 - `skin_name`
 - `image`
+
+### ReviewCreate
+
+Required fields:
+
+- `user_id`
+- `item_id`
+- `rating` (1-5)
+- `comment`
+- `is_anonymous`
+
+### ReviewOut
+
+Returned fields:
+
+- `review_id`
+- `user_id`
+- `username`
+- `item_id`
+- `weapon_name`
+- `skin_name`
+- `rating`
+- `comment`
+- `is_anonymous`
+- `created_at`
+- `updated_at`
 
 ## Example Requests
 
@@ -221,6 +258,30 @@ curl -X 'DELETE' \
 ```bash
 curl -X 'GET' \
   'http://localhost:8000/health-check' \
+  -H 'accept: application/json'
+```
+
+### Create review
+
+```bash
+curl -X 'POST' \
+  'http://localhost:8000/reviews' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "user_id": "user-001",
+  "item_id": "4e459b3b-4dab-934f-1d77-bdbe75b6fcca",
+  "rating": 5,
+  "comment": "Best skin in the game!",
+  "is_anonymous": false
+}'
+```
+
+### Get skin reviews
+
+```bash
+curl -X 'GET' \
+  'http://localhost:8000/reviews/skin/4e459b3b-4dab-934f-1d77-bdbe75b6fcca' \
   -H 'accept: application/json'
 ```
 
