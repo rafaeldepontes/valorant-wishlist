@@ -1,25 +1,68 @@
-# Start Guide
+# Installation Guide
 
-## 1. Setting up:
+## Requirements
 
-Run this in your terminal:
+-   Python 3.10+ installed
+-   `pip` available in your terminal
 
-```bash
+------------------------------------------------------------------------
+
+## 1. Set up the virtual environment
+
+Create a virtual environment in the project root:
+
+``` bash
 py -m venv .venv
-.\.venv\Scripts\activate.bat
+```
+
+Activate it:
+
+### Windows (Command Prompt)
+
+``` bat
+.venv\Scripts\activate.bat
+```
+
+### Windows (PowerShell)
+
+``` powershell
+.venv\Scripts\Activate.ps1
+```
+
+### macOS / Linux
+
+``` bash
+source .venv/bin/activate
+```
+
+Install the dependencies:
+
+``` bash
 pip install -r requirements.txt
 ```
 
----
+------------------------------------------------------------------------
 
-## 2. Running:
+## 2. Run the application
 
-To run the application, just copy and paste it:
+Start the development server with:
 
-```bash
-# Not running the "venv":
-.\.venv\Scripts\uvicorn app.main:app --reload
-
-# "venv" running:
+``` bash
 uvicorn app.main:app --reload
+```
+
+If `uvicorn` is not available in your shell, use:
+
+``` bash
+python -m uvicorn app.main:app --reload
+```
+
+------------------------------------------------------------------------
+
+## 3. Deactivate the virtual environment
+
+When you are done, deactivate it with:
+
+``` bash
+deactivate
 ```

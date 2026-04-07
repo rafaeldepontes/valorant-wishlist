@@ -12,6 +12,10 @@ Project developed for UNIFOR (University of Fortaleza), a RESTful API that allow
 - Retrieve available skins
 - Check API health
 
+## Installation:
+
+Inside of `./doc`, there is a installation guide. [installation guide](./doc/INSTALL.md)
+
 ## API Endpoints
 
 ### Skins
