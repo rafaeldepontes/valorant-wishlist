@@ -17,8 +17,6 @@ limiter = Limiter(
     default_limits=[settings.rate_limit]
 )
 
-# TODO: Write those unit test.
-
 app = FastAPI(lifespan=lifespan)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
