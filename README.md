@@ -172,7 +172,7 @@ Returned fields:
 
 ```bash
 curl -X 'POST' \
-  'http://localhost:8000/users' \
+  'https://valorant-wishlist.onrender.com/users' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -189,7 +189,7 @@ curl -X 'POST' \
 
 ```bash
 curl -X 'POST' \
-  'http://localhost:8000/wishlist' \
+  'https://valorant-wishlist.onrender.com/wishlist' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -205,7 +205,7 @@ curl -X 'POST' \
 
 ```bash
 curl -X 'GET' \
-  'http://localhost:8000/users/1' \
+  'https://valorant-wishlist.onrender.com/users/1' \
   -H 'accept: application/json'
 ```
 
@@ -213,7 +213,7 @@ curl -X 'GET' \
 
 ```bash
 curl -X 'GET' \
-  'http://localhost:8000/wishlist/user-001' \
+  'https://valorant-wishlist.onrender.com/wishlist/user-001' \
   -H 'accept: application/json'
 ```
 
@@ -221,7 +221,7 @@ curl -X 'GET' \
 
 ```bash
 curl -X 'PATCH' \
-  'http://localhost:8000/wishlist/user-001/4e459b3b-4dab-934f-1d77-bdbe75b6fcca' \
+  'https://valorant-wishlist.onrender.com/wishlist/user-001/4e459b3b-4dab-934f-1d77-bdbe75b6fcca' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -237,7 +237,7 @@ curl -X 'PATCH' \
 
 ```bash
 curl -X 'PATCH' \
-  'http://localhost:8000/users/user-001' \
+  'https://valorant-wishlist.onrender.com/users/user-001' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -253,7 +253,7 @@ curl -X 'PATCH' \
 
 ```bash
 curl -X 'DELETE' \
-  'http://localhost:8000/wishlist/user-001/4e459b3b-4dab-934f-1d77-bdbe75b6fcca' \
+  'https://valorant-wishlist.onrender.com/wishlist/user-001/4e459b3b-4dab-934f-1d77-bdbe75b6fcca' \
   -H 'accept: */*'
 ```
 
@@ -261,7 +261,7 @@ curl -X 'DELETE' \
 
 ```bash
 curl -X 'GET' \
-  'http://localhost:8000/health-check' \
+  'https://valorant-wishlist.onrender.com/health-check' \
   -H 'accept: application/json'
 ```
 
@@ -269,7 +269,7 @@ curl -X 'GET' \
 
 ```bash
 curl -X 'POST' \
-  'http://localhost:8000/reviews' \
+  'https://valorant-wishlist.onrender.com/reviews' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -285,7 +285,7 @@ curl -X 'POST' \
 
 ```bash
 curl -X 'GET' \
-  'http://localhost:8000/reviews/skin/4e459b3b-4dab-934f-1d77-bdbe75b6fcca' \
+  'https://valorant-wishlist.onrender.com/reviews/skin/4e459b3b-4dab-934f-1d77-bdbe75b6fcca' \
   -H 'accept: application/json'
 ```
 
