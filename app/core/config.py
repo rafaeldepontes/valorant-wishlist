@@ -12,4 +12,8 @@ class Settings(BaseSettings):
     rate_limit: str = "20/minute"
     url_api: str = os.environ.get("API_URL", "http://localhost:8000")
 
+    auth_secret_key: str = os.environ.get("AUTH_SECRET_KEY", "keep-it-secret-keep-it-safe")
+    auth_algorithm: str = os.environ.get("AUTH_ALGORITHM", "HS256")
+    auth_token_expire_minutes: int = 30
+
 settings = Settings()
