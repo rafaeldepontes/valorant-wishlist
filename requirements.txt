@@ -52,3 +52,5 @@ websockets==16.0
 wrapt==2.1.2
 argon2-cffi
 PyJWT
+sqlmodel
+asyncpg
