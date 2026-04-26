@@ -1,4 +1,3 @@
-
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -50,36 +49,6 @@ async def get_current_user(
         raise credentials_exception
 
     user = await user_store.get_by_username(username)
-    if user is None:
-        raise credentials_exception
-    return user
-
-def get_auth_service() -> AuthService:
-    return auth_service_singleton
-
-async def get_current_user(
-    auth: HTTPAuthorizationCredentials = Depends(bearer_scheme),
-    auth_service: AuthService = Depends(get_auth_service),
-    user_store: UserStore = Depends(get_user_store)
-):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-
-    token = auth.credentials
-
-    try:
-        payload = auth_service.decode_token(token)
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-        token_data = TokenData(username=username)
-    except jwt.PyJWTError:
-        raise credentials_exception
-
-    user = user_store.get_by_username(token_data.username)
     if user is None:
         raise credentials_exception
     return user
