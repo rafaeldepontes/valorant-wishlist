@@ -3,8 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.core.config import settings
 
-engine = create_async_engine(settings.database_url, echo=True, future=True)
-print(f"Database URL: {settings.database_url}")
+engine = create_async_engine(settings.database_url, echo=True, future=True, connect_args={"ssl": "require"})
 
 async def get_async_session() -> AsyncSession:
     async_session = sessionmaker(
