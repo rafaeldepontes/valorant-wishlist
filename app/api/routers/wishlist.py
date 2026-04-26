@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
-from app.api.deps import get_skin_cache, get_wishlist_store
+from app.api.deps import get_skin_cache, get_wishlist_store, get_user_store, get_current_user
 from app.schemas.wishlist import WishlistCreate, WishlistOut, WishlistUpdate
 from app.services.skin_cache import SkinCache
 from app.services.wishlist_store import WishlistStore
+from app.services.user_store import UserStore
+from app.core.errors import ErrorMessages
 
 router = APIRouter(prefix="/wishlist", tags=["Wishlist"])
 
@@ -14,8 +16,15 @@ async def get_wishlist(
     user_id: str,
     skin_cache: SkinCache = Depends(get_skin_cache),
     store: WishlistStore = Depends(get_wishlist_store),
+    user_store: UserStore = Depends(get_user_store),
+    current_user: dict = Depends(get_current_user),
 ):
-    items = await store.get(user_id)
+    try:
+        internal_user_id = await user_store.get_internal_id(user_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail=ErrorMessages.USER_NOT_FOUND)
+
+    items = await store.get(internal_user_id)
     result = []
 
     for item in items:
@@ -46,13 +55,23 @@ async def add_wishlist(
     body: WishlistCreate,
     skin_cache: SkinCache = Depends(get_skin_cache),
     store: WishlistStore = Depends(get_wishlist_store),
+    user_store: UserStore = Depends(get_user_store),
+    current_user: dict = Depends(get_current_user),
 ):
+    if str(current_user["uuid"]) != body.user_id:
+        raise HTTPException(status_code=403, detail=ErrorMessages.NOT_ENOUGH_PERMISSIONS)
+
     skin = await skin_cache.get(body.item_id)
     if not skin:
-        raise HTTPException(status_code=404, detail="skin not found")
+        raise HTTPException(status_code=404, detail=ErrorMessages.SKIN_NOT_FOUND)
+
+    try:
+        internal_user_id = await user_store.get_internal_id(body.user_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail=ErrorMessages.USER_NOT_FOUND)
 
     record = await store.add(
-        body.user_id,
+        internal_user_id,
         body.item_id,
         body.notes,
         body.priority,
@@ -81,13 +100,23 @@ async def update_wishlist(
     body: WishlistUpdate,
     skin_cache: SkinCache = Depends(get_skin_cache),
     store: WishlistStore = Depends(get_wishlist_store),
+    user_store: UserStore = Depends(get_user_store),
+    current_user: dict = Depends(get_current_user),
 ):
+    if str(current_user["uuid"]) != user_id:
+        raise HTTPException(status_code=403, detail=ErrorMessages.NOT_ENOUGH_PERMISSIONS)
+
+    try:
+        internal_user_id = await user_store.get_internal_id(user_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail=ErrorMessages.USER_NOT_FOUND)
+
     updates = body.model_dump(exclude_none=True)
 
     try:
-        record = await store.update(user_id, item_id, updates)
+        record = await store.update(internal_user_id, item_id, updates)
     except KeyError:
-        raise HTTPException(status_code=404, detail="item not found")
+        raise HTTPException(status_code=404, detail=ErrorMessages.ITEM_NOT_FOUND)
 
     skin = await skin_cache.get(item_id)
 
@@ -110,8 +139,14 @@ async def delete_wishlist(
     user_id: str,
     item_id: str,
     store: WishlistStore = Depends(get_wishlist_store),
+    user_store: UserStore = Depends(get_user_store),
+    current_user: dict = Depends(get_current_user),
 ):
+    if str(current_user["uuid"]) != user_id:
+        raise HTTPException(status_code=403, detail=ErrorMessages.NOT_ENOUGH_PERMISSIONS)
+
     try:
-        await store.remove(user_id, item_id)
-    except KeyError:
-        raise HTTPException(status_code=404, detail="item not found")
+        internal_user_id = await user_store.get_internal_id(user_id)
+        await store.remove(internal_user_id, item_id)
+    except KeyError as e:
+        raise HTTPException(status_code=404, detail=str(e))

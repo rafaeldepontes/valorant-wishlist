@@ -1,10 +1,10 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 class UserCreate(BaseModel):
-    user_id: str
-    username: str
+    username: str = Field(..., min_length=1)
     email: EmailStr
+    password: str = Field(..., min_length=1)
     display_name: str | None = None
     favorite_weapon: str | None = None
     bio: str
@@ -29,3 +29,7 @@ class UserOut(BaseModel):
     created_at: str
     updated_at: str
     bio: str
+
+class UserList(BaseModel):
+    user_id: str
+    username: str

@@ -1,3 +1,4 @@
+import os
 import time
 from typing import Any
 
@@ -16,7 +17,7 @@ class SkinCache:
 
     async def refresh(self) -> None:
         async with httpx.AsyncClient(timeout=20) as client:
-            res = await client.get("https://valorant-api.com/v1/weapons")
+            res = await client.get(os.environ.get("VALORANT_API_URL", "https://valorant-api.com/v1/weapons"))
             res.raise_for_status()
             payload = res.json()
 

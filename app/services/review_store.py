@@ -1,48 +1,89 @@
 import uuid
-from typing import Any, Dict, List
+from typing import Any, List
+from sqlmodel import select, or_
+from sqlmodel.ext.asyncio.session import AsyncSession
+from app.models.review import Review
 from app.utils.time import now_iso
+from app.core.errors import ErrorMessages
 
 
 class ReviewStore:
-    def __init__(self):
-        self.data: Dict[str, dict[str, Any]] = {}
+    def __init__(self, session: AsyncSession):
+        self.session = session
 
-    def create(self, body: dict[str, Any]) -> dict[str, Any]:
-        review_id = str(uuid.uuid4())
-        now = now_iso()
-        
-        record = {
-            "review_id": review_id,
-            **body,
-            "created_at": now,
-            "updated_at": now,
-        }
-        self.data[review_id] = record
-        return record
+    async def create(self, user_id: int, body: dict[str, Any]) -> dict[str, Any]:
+        record = Review(
+            user_id=user_id,
+            **body
+        )
+        self.session.add(record)
+        await self.session.commit()
+        await self.session.refresh(record)
+        return record.model_dump()
 
-    def get_by_id(self, review_id: str) -> dict[str, Any]:
-        if review_id not in self.data:
-            raise KeyError("review not found")
-        return self.data[review_id]
+    async def get_by_id(self, review_uuid: str) -> dict[str, Any]:
+        statement = select(Review).where(Review.uuid == uuid.UUID(review_uuid))
+        results = await self.session.exec(statement)
+        record = results.first()
+        if not record:
+            raise KeyError(ErrorMessages.REVIEW_NOT_FOUND)
+        return record.model_dump()
 
-    def get_by_skin(self, item_id: str) -> List[dict[str, Any]]:
-        return [r for r in self.data.values() if r["item_id"] == item_id]
+    async def get_by_skin(self, item_id: str, requester_id: int) -> List[dict[str, Any]]:
+        statement = select(Review).where(
+            Review.item_id == item_id,
+            or_(Review.is_anonymous == False, Review.user_id == requester_id)
+        )
+        results = await self.session.exec(statement)
+        return [r.model_dump() for r in results.all()]
 
-    def get_by_user(self, user_id: str) -> List[dict[str, Any]]:
-        return [r for r in self.data.values() if r["user_id"] == user_id]
+    async def get_by_user(self, user_id: int, requester_id: int) -> List[dict[str, Any]]:
+        statement = select(Review).where(Review.user_id == user_id)
+        if user_id != requester_id:
+            statement = statement.where(Review.is_anonymous == False)
 
-    def update(self, review_id: str, patch: dict[str, Any]) -> dict[str, Any]:
-        if review_id not in self.data:
-            raise KeyError("review not found")
+        results = await self.session.exec(statement)
+        return [r.model_dump() for r in results.all()]
 
-        self.data[review_id].update(patch)
-        self.data[review_id]["updated_at"] = now_iso()
-        return self.data[review_id]
+    async def update(self, review_uuid: str, requester_id: int, patch: dict[str, Any]) -> dict[str, Any]:
+        statement = select(Review).where(Review.uuid == uuid.UUID(review_uuid))
+        results = await self.session.exec(statement)
+        record = results.first()
+        if not record:
+            raise KeyError(ErrorMessages.REVIEW_NOT_FOUND)
 
-    def delete(self, review_id: str) -> None:
-        if review_id not in self.data:
-            raise KeyError("review not found")
-        del self.data[review_id]
+        if record.user_id != requester_id:
+            raise PermissionError(ErrorMessages.NOT_ENOUGH_PERMISSIONS)
 
-    def list_all(self) -> List[dict[str, Any]]:
-        return list(self.data.values())
+        if record.is_anonymous:
+            raise PermissionError(ErrorMessages.NOT_ENOUGH_PERMISSIONS)
+
+        for key, value in patch.items():
+            setattr(record, key, value)
+
+        record.updated_at = now_iso()
+        self.session.add(record)
+        await self.session.commit()
+        await self.session.refresh(record)
+        return record.model_dump()
+
+    async def delete(self, review_uuid: str, requester_id: int) -> None:
+        statement = select(Review).where(Review.uuid == uuid.UUID(review_uuid))
+        results = await self.session.exec(statement)
+        record = results.first()
+        if not record:
+            raise KeyError(ErrorMessages.REVIEW_NOT_FOUND)
+
+        if record.user_id != requester_id:
+            raise PermissionError(ErrorMessages.NOT_ENOUGH_PERMISSIONS)
+
+        if record.is_anonymous:
+            raise PermissionError(ErrorMessages.NOT_ENOUGH_PERMISSIONS)
+
+        await self.session.delete(record)
+        await self.session.commit()
+
+    async def list_all(self) -> List[dict[str, Any]]:
+        statement = select(Review).where(Review.is_anonymous == False)
+        results = await self.session.exec(statement)
+        return [r.model_dump() for r in results.all()]

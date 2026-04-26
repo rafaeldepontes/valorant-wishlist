@@ -17,7 +17,7 @@ class ReviewUpdate(BaseModel):
 
 class ReviewOut(BaseModel):
     review_id: str
-    user_id: str
+    user_id: str | None
     username: str | None
     item_id: str
     weapon_name: str

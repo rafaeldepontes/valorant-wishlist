@@ -2,22 +2,21 @@ import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi import _rate_limit_exceeded_handler
 from fastapi.responses import RedirectResponse
 from slowapi.errors import RateLimitExceeded
-from slowapi.util import get_remote_address
 
 from app.api.router import api_router
 from app.api.deps import skin_cache_singleton
 from app.core.config import settings
 from app.core.lifespan import lifespan
+from app.core.limiter import limiter
 
-limiter = Limiter(
-    key_func=get_remote_address,
-    default_limits=[settings.rate_limit]
+app = FastAPI(
+    lifespan=lifespan,
+    title="Valorant Wishlist API",
+    swagger_ui_parameters={"persistAuthorization": True}
 )
-
-app = FastAPI(lifespan=lifespan)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
@@ -26,7 +25,7 @@ app.add_middleware(
     max_age=300,
     allow_origins=settings.cors_origins,
     allow_credentials=True,
-    allow_headers=["Accept", "Content-Type"],
+    allow_headers=["Accept", "Content-Type", "Authorization"],
     allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
 )
 

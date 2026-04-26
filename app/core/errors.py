@@ -1,0 +1,10 @@
+class ErrorMessages:
+    USER_ALREADY_EXISTS = "user already exists"
+    USER_NOT_FOUND = "user not found"
+    REVIEW_NOT_FOUND = "review not found"
+    ITEM_NOT_FOUND = "item not found"
+    SKIN_NOT_FOUND = "skin not found"
+    INVALID_CREDENTIALS = "invalid username and/or password"
+    INVALID_TOKEN = "invalid or expired token"
+    NOT_ENOUGH_PERMISSIONS = "not enough permissions"
+    UNKNOWN_USER = "Unknown User"
