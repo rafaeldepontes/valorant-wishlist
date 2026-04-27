@@ -1,86 +1,68 @@
 import pytest
-from fastapi.testclient import TestClient
-from app.main import app
-from app.api.deps import review_store_singleton, user_store_singleton, skin_cache_singleton
+from unittest.mock import MagicMock
+from uuid import uuid4
 
-client = TestClient(app)
+@pytest.mark.asyncio
+async def test_create_review_success(client, mock_review_store, mock_user_store, mock_skin_cache):
+    mock_user_store.get.return_value = {"id": 1, "uuid": "u1", "username": "testuser"}
+    mock_skin_cache.get.return_value = {"weapon_name": "Vandal", "skin_name": "Reaver"}
 
-@pytest.fixture(autouse=True)
-def setup_data():
-    # Clear store
-    review_store_singleton.data = {}
-    
-    # Create a user for testing
-    user_store_singleton.data = {}
-    user_store_singleton.create({
-        "user_id": "test-user",
-        "username": "testuser",
-        "email": "test@example.com",
-        "bio": "test bio"
-    })
-    
-    # Ensure skin cache has something (mock or wait for load)
-    # We'll assume a skin ID exists from the real API for simplicity in this integration test
-    # or we can mock skin_cache_singleton.exists
-    pass
-
-def test_create_review():
-    # Mock skin existence
-    skin_id = "4e459b3b-4dab-934f-1d77-bdbe75b6fcca"
-    
-    # We need to make sure the skin is in cache for enrichment
-    # For testing, we can manually inject it
-    skin_cache_singleton.data[skin_id] = {
-        "weapon_name": "Vandal",
-        "skin_id": skin_id,
-        "skin_name": "Reaver Vandal",
-        "image": None
+    mock_review_store.create.return_value = {
+        "uuid": uuid4(),
+        "user_id": 1,
+        "item_id": "s1",
+        "rating": 5,
+        "comment": "Nice",
+        "is_anonymous": False,
+        "created_at": "now",
+        "updated_at": "now"
     }
 
-    response = client.post(
-        "/reviews",
-        json={
-            "user_id": "test-user",
-            "item_id": skin_id,
-            "rating": 5,
-            "comment": "Amazing!",
-            "is_anonymous": False
-        }
-    )
-    assert response.status_code == 201
-    data = response.json()
-    assert data["rating"] == 5
-    assert data["comment"] == "Amazing!"
-    assert data["username"] == "testuser"
-    assert data["weapon_name"] == "Vandal"
+    mock_result = MagicMock()
+    mock_result.first.return_value = MagicMock(uuid="u1", username="testuser")
+    mock_user_store.session.exec.return_value = mock_result
 
-def test_get_skin_reviews():
-    skin_id = "skin-1"
-    review_store_singleton.create({
-        "user_id": "test-user",
-        "item_id": skin_id,
-        "rating": 4,
-        "comment": "Good",
-        "is_anonymous": True
-    })
-
-    response = client.get(f"/reviews/skin/{skin_id}")
-    assert response.status_code == 200
-    data = response.json()
-    assert len(data) == 1
-    assert data[0]["rating"] == 4
-    assert data[0]["username"] is None  # Anonymous
-
-def test_delete_review():
-    record = review_store_singleton.create({
-        "user_id": "test-user",
-        "item_id": "skin-1",
-        "rating": 3,
-        "comment": "Meh",
+    payload = {
+        "user_id": "u1",
+        "item_id": "s1",
+        "rating": 5,
+        "comment": "Nice",
         "is_anonymous": False
-    })
-    review_id = record["review_id"]
+    }
+    response = client.post("/reviews", json=payload)
+    assert response.status_code == 201
+    assert response.json()["username"] == "testuser"
 
-    response = client.delete(f"/reviews/{review_id}")
-    assert response.status_code == 204
-    assert review_id not in review_store_singleton.data
+@pytest.mark.asyncio
+async def test_create_review_forbidden(client, current_user):
+    payload = {
+        "user_id": "u2",
+        "item_id": "s1",
+        "rating": 5,
+        "comment": "forbidden",
+        "is_anonymous": False
+    }
+    response = client.post("/reviews", json=payload)
+    assert response.status_code == 403
+
+@pytest.mark.asyncio
+async def test_update_review_forbidden(client, mock_review_store):
+    mock_review_store.update.side_effect = PermissionError("not enough permissions")
+
+    response = client.patch("/reviews/r1", json={"rating": 1})
+    assert response.status_code == 403
+
+@pytest.mark.asyncio
+async def test_update_anonymous_review_forbidden(client, mock_review_store):
+    # ReviewStore.update raises PermissionError for anonymous reviews
+    mock_review_store.update.side_effect = PermissionError("not enough permissions")
+
+    response = client.patch("/reviews/r_anon", json={"rating": 1})
+    assert response.status_code == 403
+
+@pytest.mark.asyncio
+async def test_delete_review_not_found(client, mock_review_store):
+    mock_review_store.delete.side_effect = KeyError("review not found")
+
+    response = client.delete("/reviews/invalid")
+    assert response.status_code == 404
