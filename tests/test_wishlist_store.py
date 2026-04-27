@@ -1,44 +1,52 @@
 import pytest
-import json
-from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock
 from app.services.wishlist_store import WishlistStore
 
 @pytest.fixture
-async def wishlist_store(tmp_path):
-    file_path = tmp_path / "wishlist.json"
-    store = WishlistStore(file_path)
-    return store
+def mock_session():
+    return AsyncMock()
+
+@pytest.fixture
+def wishlist_store(mock_session):
+    return WishlistStore(mock_session)
 
 @pytest.mark.asyncio
-async def test_add_item_to_wishlist(wishlist_store):
-    item = await wishlist_store.add(user="user1", item_id="skin_001", notes="Cool skin")
+async def test_add_item_to_wishlist(wishlist_store, mock_session):
+    mock_result = MagicMock()
+    mock_result.first.return_value = None
+    mock_session.exec.return_value = mock_result
+
+    async def mock_refresh(obj):
+        obj.id = 1
+        obj.status = "active"
+        obj.created_at = "now"
+        obj.updated_at = "now"
+
+    mock_session.refresh.side_effect = mock_refresh
+
+    item = await wishlist_store.add(user_id=1, item_id="skin_001", notes="Cool skin")
 
     assert item["item_id"] == "skin_001"
     assert item["notes"] == "Cool skin"
-
-    assert wishlist_store.file_path.exists()
-    data = json.loads(wishlist_store.file_path.read_text())
-    assert "user1" in data
-    assert data["user1"][0]["item_id"] == "skin_001"
+    assert mock_session.add.called
+    assert mock_session.commit.called
 
 @pytest.mark.asyncio
-async def test_load_migration_logic(tmp_path):
-    file_path = tmp_path / "old_wishlist.json"
-    old_data = {"user1": ["skin_id_123"]}
-    file_path.write_text(json.dumps(old_data))
+async def test_remove_item(wishlist_store, mock_session):
+    mock_item = MagicMock()
+    mock_session.get.return_value = mock_item
 
-    store = WishlistStore(file_path)
-    await store.load()
+    # We need to mock the find logic if remove uses it
+    # Actually looking at wishlist_store.py remove:
+    # async def remove(self, user_id: int, item_id: str) -> None:
+    #     statement = select(WishlistItem).where(WishlistItem.user_id == user_id, WishlistItem.item_id == item_id)
+    #     results = await self.session.exec(statement)
+    #     record = results.first()
 
-    items = await store.get("user1")
-    assert isinstance(items[0], dict)
-    assert items[0]["item_id"] == "skin_id_123"
-    assert items[0]["status"] == "active"
+    mock_result = MagicMock()
+    mock_result.first.return_value = {"id": 1}
+    mock_session.exec.return_value = mock_result
 
-@pytest.mark.asyncio
-async def test_remove_item(wishlist_store):
-    await wishlist_store.add("user1", "item_a")
-    await wishlist_store.remove("user1", "item_a")
-
-    items = await wishlist_store.get("user1")
-    assert len(items) == 0
+    await wishlist_store.remove(1, "item_a")
+    assert mock_session.delete.called
+    assert mock_session.commit.called
