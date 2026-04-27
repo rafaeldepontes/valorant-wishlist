@@ -5,9 +5,6 @@ class UserCreate(BaseModel):
     username: str = Field(..., min_length=1)
     email: EmailStr
     password: str = Field(..., min_length=1)
-    display_name: str | None = None
-    favorite_weapon: str | None = None
-    bio: str
 
 
 class UserUpdate(BaseModel):
@@ -15,7 +12,7 @@ class UserUpdate(BaseModel):
     email: EmailStr | None = None
     display_name: str | None = None
     favorite_weapon: str | None = None
-    bio: str
+    bio: str | None = None
 
 
 class UserOut(BaseModel):
@@ -28,7 +25,7 @@ class UserOut(BaseModel):
     status: str
     created_at: str
     updated_at: str
-    bio: str
+    bio: str | None = None
 
 class UserList(BaseModel):
     user_id: str
