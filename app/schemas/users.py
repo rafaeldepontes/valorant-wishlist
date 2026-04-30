@@ -8,7 +8,6 @@ class UserCreate(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    username: str | None = None
     email: EmailStr | None = None
     display_name: str | None = None
     favorite_weapon: str | None = None
