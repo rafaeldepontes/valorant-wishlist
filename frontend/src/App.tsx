@@ -6,6 +6,7 @@ import RegisterPage from './pages/RegisterPage';
 import SkinsPage from './pages/SkinsPage';
 import WishlistPage from './pages/WishlistPage';
 import ProfilePage from './pages/ProfilePage';
+import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
   return (
@@ -23,6 +24,9 @@ function App() {
               <Route path="/wishlist" element={<WishlistPage />} />
               <Route path="/profile" element={<ProfilePage />} />
             </Route>
+
+            {/* Catch-all Route */}
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </div>
       </Router>
