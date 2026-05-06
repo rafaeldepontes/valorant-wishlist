@@ -14,7 +14,7 @@ async def list_users(
     current_user: dict = Depends(get_current_user),
 ):
     users = await user_store.list_all()
-    return [{"user_id": str(u["uuid"]), "username": u["username"]} for u in users]
+    return [{"user_id": str(u["uuid"]), "username": u["display_name"]} for u in users]
 
 @router.get("/me", response_model=UserOut)
 async def get_users_me(
