@@ -16,11 +16,11 @@ const SkinsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedSkin, setSelectedSkin] = useState<Skin | null>(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-  
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  
+
   // Toast state
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
@@ -62,12 +62,12 @@ const SkinsPage: React.FC = () => {
   }, [user]);
 
   useEffect(() => {
-    const results = skins.filter(skin => 
+    const results = skins.filter(skin =>
       skin.skin_name.toLowerCase().includes(search.toLowerCase()) ||
       skin.weapon_name.toLowerCase().includes(search.toLowerCase())
     );
     setFilteredSkins(results);
-    setCurrentPage(1); // Reset to first page on search
+    setCurrentPage(1);
   }, [search, skins]);
 
   const handleAddToWishlist = async (skin: Skin) => {
@@ -78,7 +78,7 @@ const SkinsPage: React.FC = () => {
         item_id: skin.skin_id,
       });
       setWishlistIds(prev => new Set([...Array.from(prev), skin.skin_id]));
-      await refreshUser(); // Update global counter
+      await refreshUser();
       showToast(`Added ${skin.skin_name} to wishlist`);
     } catch (error: any) {
       showToast(error.response?.data?.detail || 'Failed to add to wishlist', 'error');
@@ -94,7 +94,7 @@ const SkinsPage: React.FC = () => {
         next.delete(skinId);
         return next;
       });
-      await refreshUser(); // Update global counter
+      await refreshUser();
       showToast('Removed from wishlist', 'info');
     } catch (error: any) {
       showToast(error.response?.data?.detail || 'Failed to remove from wishlist', 'error');
@@ -120,7 +120,6 @@ const SkinsPage: React.FC = () => {
     }
   };
 
-  // Pagination Logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentSkins = filteredSkins.slice(indexOfFirstItem, indexOfLastItem);
@@ -197,7 +196,7 @@ const SkinsPage: React.FC = () => {
               >
                 <ChevronLeft size={20} />
               </button>
-              
+
               <div className="flex gap-2">
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                   let pageNum;
