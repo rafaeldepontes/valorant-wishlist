@@ -1,0 +1,5 @@
+<svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M50 10L90 50L50 90L10 50L50 10Z" fill="#ff4655" />
+  <path d="M50 75L44 69.44C24 51.12 10 38.32 10 25C10 14.16 18.16 6 29 6C35.04 6 41.04 8.72 45 13.12C48.96 8.72 54.96 6 61 6C71.84 6 80 14.16 80 25C80 38.32 66 51.12 46 69.44L50 75Z" fill="#0f1923" transform="scale(0.5) translate(50, 45)" />
+  <path d="M30 35L50 55L70 35" stroke="#ece8e1" stroke-width="8" stroke-linecap="square" />
+</svg>
