@@ -1,6 +1,6 @@
 import uuid
 from typing import Any
-from sqlmodel import select
+from sqlmodel import select, func
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.models.user import User
 from app.services.id_cache import id_cache
@@ -91,3 +91,12 @@ class UserStore:
         statement = select(User)
         results = await self.session.exec(statement)
         return [user.model_dump() for user in results.all()]
+
+    async def list_paginated(self, page: int, size: int) -> tuple[list[dict[str, Any]], int]:
+        count_statement = select(func.count()).select_from(User)
+        count_results = await self.session.exec(count_statement)
+        total = count_results.one()
+
+        statement = select(User).offset((page - 1) * size).limit(size)
+        results = await self.session.exec(statement)
+        return [user.model_dump() for user in results.all()], total

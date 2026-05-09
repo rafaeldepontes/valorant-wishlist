@@ -39,3 +39,22 @@ async def test_get_users_me(client, current_user, mock_wishlist_store):
     response = client.get("/users/me")
     assert response.status_code == 200
     assert response.json()["user_id"] == "u1"
+
+@pytest.mark.asyncio
+async def test_list_users_paginated(client, mock_user_store):
+    mock_user_store.list_paginated.return_value = (
+        [
+            {"uuid": "u1", "username": "user1", "display_name": "User One"},
+            {"uuid": "u2", "username": "user2", "display_name": "User Two"}
+        ],
+        2
+    )
+    
+    response = client.get("/users?page=1&size=10")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] == 2
+    assert len(data["items"]) == 2
+    assert data["items"][0]["username"] == "user1"
+    assert data["page"] == 1
+    assert data["pages"] == 1
