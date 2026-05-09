@@ -29,3 +29,11 @@ class UserOut(BaseModel):
 class UserList(BaseModel):
     user_id: str
     username: str
+    display_name: str | None = None
+
+class UserPaginated(BaseModel):
+    items: list[UserList]
+    total: int
+    page: int
+    size: int
+    pages: int

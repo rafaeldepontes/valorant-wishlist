@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, User as UserIcon, Heart, ShoppingBag } from 'lucide-react';
+import { LogOut, User as UserIcon, Heart, ShoppingBag, Users } from 'lucide-react';
 
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -29,6 +29,10 @@ const Navbar: React.FC = () => {
               <Link to="/wishlist" className="hover:text-valorant-red transition-colors flex items-center gap-2">
                 <Heart size={20} />
                 <span>Wishlist</span>
+              </Link>
+              <Link to="/community" className="hover:text-valorant-red transition-colors flex items-center gap-2">
+                <Users size={20} />
+                <span>Community</span>
               </Link>
               <Link to="/profile" className="hover:text-valorant-red transition-colors flex items-center gap-2">
                 <UserIcon size={20} />

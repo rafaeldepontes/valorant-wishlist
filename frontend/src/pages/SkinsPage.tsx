@@ -106,20 +106,6 @@ const SkinsPage: React.FC = () => {
     setIsReviewModalOpen(true);
   };
 
-  const handleReviewSubmit = async (data: any) => {
-    if (!user || !selectedSkin) return;
-    try {
-      await reviewService.createReview({
-        ...data,
-        user_id: user.user_id,
-        item_id: selectedSkin.skin_id,
-      });
-      showToast('Review submitted successfully');
-    } catch (error: any) {
-      showToast(error.response?.data?.detail || 'Failed to submit review', 'error');
-    }
-  };
-
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentSkins = filteredSkins.slice(indexOfFirstItem, indexOfLastItem);
@@ -232,13 +218,15 @@ const SkinsPage: React.FC = () => {
         </>
       )}
 
-      {selectedSkin && (
+      {selectedSkin && user && (
         <ReviewModal
           isOpen={isReviewModalOpen}
           onClose={() => setIsReviewModalOpen(false)}
           skinId={selectedSkin.skin_id}
           skinName={selectedSkin.skin_name}
-          onSubmit={handleReviewSubmit}
+          userId={user.user_id}
+          onSuccess={(msg) => showToast(msg)}
+          onError={(msg) => showToast(msg, 'error')}
         />
       )}
 

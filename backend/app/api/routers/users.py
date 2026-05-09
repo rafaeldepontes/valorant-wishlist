@@ -1,20 +1,39 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.api.deps import get_user_store, get_wishlist_store, get_current_user
-from app.schemas.users import UserCreate, UserOut, UserUpdate, UserList
+from app.schemas.users import UserOut, UserUpdate, UserPaginated
 from app.services.user_store import UserStore
 from app.services.wishlist_store import WishlistStore
 from app.core.errors import ErrorMessages
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
-@router.get("", response_model=list[UserList])
+@router.get("", response_model=UserPaginated)
 async def list_users(
+    page: int = Query(1, ge=1),
+    size: int = Query(10, ge=1, le=100),
     user_store: UserStore = Depends(get_user_store),
     current_user: dict = Depends(get_current_user),
 ):
-    users = await user_store.list_all()
-    return [{"user_id": str(u["uuid"]), "username": u["display_name"]} for u in users]
+    users, total = await user_store.list_paginated(page, size)
+    pages = (total + size - 1) // size
+
+    items = [
+        {
+            "user_id": str(u["uuid"]),
+            "username": u["username"],
+            "display_name": u.get("display_name")
+        }
+        for u in users
+    ]
+
+    return {
+        "items": items,
+        "total": total,
+        "page": page,
+        "size": size,
+        "pages": pages
+    }
 
 @router.get("/me", response_model=UserOut)
 async def get_users_me(

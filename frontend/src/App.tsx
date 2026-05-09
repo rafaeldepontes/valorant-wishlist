@@ -6,6 +6,8 @@ import RegisterPage from './pages/RegisterPage';
 import SkinsPage from './pages/SkinsPage';
 import WishlistPage from './pages/WishlistPage';
 import ProfilePage from './pages/ProfilePage';
+import CommunityPage from './pages/CommunityPage';
+import UserDetailPage from './pages/UserDetailPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
@@ -22,6 +24,8 @@ function App() {
             <Route element={<PrivateRoute />}>
               <Route path="/" element={<SkinsPage />} />
               <Route path="/wishlist" element={<WishlistPage />} />
+              <Route path="/community" element={<CommunityPage />} />
+              <Route path="/community/:userId" element={<UserDetailPage />} />
               <Route path="/profile" element={<ProfilePage />} />
             </Route>
 

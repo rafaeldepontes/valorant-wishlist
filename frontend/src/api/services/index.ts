@@ -1,5 +1,5 @@
 import api from '../client';
-import { User, Skin, WishlistItem, Review, TokenResponse } from '../../types';
+import { User, Skin, WishlistItem, Review, TokenResponse, PaginatedResponse, UserList } from '../../types';
 
 export const authService = {
   login: async (data: any): Promise<TokenResponse> => {
@@ -15,6 +15,14 @@ export const authService = {
 export const userService = {
   getMe: async (): Promise<User> => {
     const response = await api.get<User>('/users/me');
+    return response.data;
+  },
+  getUser: async (userId: string): Promise<User> => {
+    const response = await api.get<User>(`/users/${userId}`);
+    return response.data;
+  },
+  listUsers: async (page: number = 1, size: number = 10): Promise<PaginatedResponse<UserList>> => {
+    const response = await api.get<PaginatedResponse<UserList>>(`/users?page=${page}&size=${size}`);
     return response.data;
   },
   updateProfile: async (userId: string, data: any): Promise<User> => {
@@ -51,6 +59,10 @@ export const wishlistService = {
 export const reviewService = {
   getSkinReviews: async (itemId: string): Promise<Review[]> => {
     const response = await api.get<Review[]>(`/reviews/skin/${itemId}`);
+    return response.data;
+  },
+  getUserReviews: async (userId: string): Promise<Review[]> => {
+    const response = await api.get<Review[]>(`/reviews/user/${userId}`);
     return response.data;
   },
   createReview: async (data: any): Promise<Review> => {

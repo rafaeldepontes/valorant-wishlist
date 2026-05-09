@@ -8,7 +8,20 @@ export interface User {
   wishlist_count: number;
   status: string;
   created_at: string;
-  updated_at: string;
+}
+
+export interface UserList {
+  user_id: string;
+  username: string;
+  display_name?: string;
+}
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  size: number;
+  pages: number;
 }
 
 export interface Skin {

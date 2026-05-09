@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, Star } from 'lucide-react';
 import { reviewService } from '../api/services';
 import { Review } from '../types';
@@ -7,41 +7,74 @@ import ReviewList from './ReviewList';
 interface ReviewModalProps {
   skinId: string;
   skinName: string;
+  userId: string;
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: { rating: number; comment: string; is_anonymous: boolean }) => void;
+  onSuccess?: (message: string) => void;
+  onError?: (message: string) => void;
 }
 
-const ReviewModal: React.FC<ReviewModalProps> = ({ skinId, skinName, isOpen, onClose, onSubmit }) => {
+const ReviewModal: React.FC<ReviewModalProps> = ({
+  skinId,
+  skinName,
+  userId,
+  isOpen,
+  onClose,
+  onSuccess,
+  onError
+}) => {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const fetchReviews = useCallback(async () => {
+    if (!skinId) return;
+    setLoadingReviews(true);
+    try {
+      const data = await reviewService.getSkinReviews(skinId);
+      setReviews(data);
+    } catch (error) {
+      console.error('Failed to fetch reviews', error);
+    } finally {
+      setLoadingReviews(false);
+    }
+  }, [skinId]);
 
   useEffect(() => {
-    if (isOpen && skinId) {
-      const fetchReviews = async () => {
-        setLoadingReviews(true);
-        try {
-          const data = await reviewService.getSkinReviews(skinId);
-          setReviews(data);
-        } catch (error) {
-          console.error('Failed to fetch reviews', error);
-        } finally {
-          setLoadingReviews(false);
-        }
-      };
+    if (isOpen) {
       fetchReviews();
     }
-  }, [isOpen, skinId]);
+  }, [isOpen, fetchReviews]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ rating, comment, is_anonymous: isAnonymous });
-    setComment(''); // Reset comment after submit
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      await reviewService.createReview({
+        user_id: userId,
+        item_id: skinId,
+        rating,
+        comment,
+        is_anonymous: isAnonymous
+      });
+
+      setComment('');
+      if (onSuccess) onSuccess('Review submitted successfully');
+
+      await fetchReviews();
+    } catch (error: any) {
+      const msg = error.response?.data?.detail || 'Failed to submit review';
+      if (onError) onError(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -97,9 +130,10 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ skinId, skinName, isOpen, onC
 
               <button
                 type="submit"
-                className="w-full bg-valorant-red text-white py-4 font-bold uppercase tracking-widest hover:bg-valorant-red/80 transition-all shadow-lg shadow-valorant-red/20"
+                disabled={isSubmitting}
+                className="w-full bg-valorant-red text-white py-4 font-bold uppercase tracking-widest hover:bg-valorant-red/80 transition-all shadow-lg shadow-valorant-red/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Submit Review
+                {isSubmitting ? 'Submitting...' : 'Submit Review'}
               </button>
             </form>
           </div>

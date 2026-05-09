@@ -66,3 +66,36 @@ async def test_delete_review_not_found(client, mock_review_store):
 
     response = client.delete("/reviews/invalid")
     assert response.status_code == 404
+
+@pytest.mark.asyncio
+async def test_get_user_reviews_privacy(client, mock_review_store, mock_user_store, mock_skin_cache):
+    mock_user_store.get.return_value = {"id": 2, "uuid": "u2", "username": "otheruser"}
+
+    # Mock reviews (one public, one anonymous)
+    # ReviewStore.get_by_user should already filter them based on requester_id
+    # So we mock it returning only the public one when requested by someone else
+    mock_review_store.get_by_user.return_value = [
+        {
+            "uuid": uuid4(),
+            "user_id": 2,
+            "item_id": "s1",
+            "rating": 5,
+            "comment": "Public review",
+            "is_anonymous": False,
+            "created_at": "now",
+            "updated_at": "now"
+        }
+    ]
+
+    mock_skin_cache.get.return_value = {"weapon_name": "Vandal", "skin_name": "Reaver"}
+
+    mock_result = MagicMock()
+    mock_result.first.return_value = MagicMock(uuid="u2", username="otheruser")
+    mock_user_store.session.exec.return_value = mock_result
+
+    response = client.get("/reviews/user/u2")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]["comment"] == "Public review"
+    assert data[0]["username"] == "otheruser"
