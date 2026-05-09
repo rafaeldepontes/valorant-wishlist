@@ -43,3 +43,26 @@ body {
 .animate-slide-in {
   animation: slide-in 0.3s ease-out forwards;
 }
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f1923;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ff4655;
+  border: 2px solid #0f1923;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff4655ee;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #ff4655 #0f1923;
+}
