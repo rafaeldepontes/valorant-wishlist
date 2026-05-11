@@ -9,7 +9,7 @@ dev: str = os.environ.get("DEV", "")
 if dev != "":
     engine = create_async_engine(settings.database_url, echo=True, future=True)
 else:
-    engine = create_async_engine(settings.database_url, echo=True, future=True, connect_args={"ssl": "require"})
+    engine = create_async_engine(settings.database_url, echo=False, future=True, connect_args={"ssl": "require"})
 
 async def get_async_session() -> AsyncSession:
     async_session = sessionmaker(
