@@ -19,6 +19,6 @@ class Settings(BaseSettings):
     auth_token_expire_minutes: int = 30
     auth_cookie_name: str = "access_token"
     auth_cookie_secure: bool = os.environ.get("AUTH_COOKIE_SECURE", "False").lower() == "true"
-    auth_cookie_samesite: str = "lax"
+    auth_cookie_samesite: str = os.environ.get("AUTH_COOKIE_SAMESITE", "lax")
 
 settings = Settings()
