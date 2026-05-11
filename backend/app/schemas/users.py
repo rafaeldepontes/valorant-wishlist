@@ -17,7 +17,7 @@ class UserUpdate(BaseModel):
 class UserOut(BaseModel):
     user_id: str
     username: str
-    email: EmailStr
+    email: EmailStr | None = None
     display_name: str | None = None
     favorite_weapon: str | None = None
     wishlist_count: int

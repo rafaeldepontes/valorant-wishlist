@@ -7,7 +7,7 @@ interface AuthContextType {
   loading: boolean;
   login: (data: any) => Promise<void>;
   register: (data: any) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   updateUser: (data: Partial<User>) => void;
   refreshUser: () => Promise<void>;
 }
@@ -23,18 +23,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const userData = await userService.getMe();
       setUser(userData);
     } catch (error) {
-      console.error('Failed to fetch user', error);
-      localStorage.removeItem('token');
+      if (import.meta.env.VITE_IS_DEV) console.error('Failed to fetch user', error);
       setUser(null);
     }
   };
 
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        await fetchUserData();
-      }
+      await fetchUserData();
       setLoading(false);
     };
 
@@ -42,8 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (data: any) => {
-    const { access_token } = await authService.login(data);
-    localStorage.setItem('token', access_token);
+    await authService.login(data);
     await fetchUserData();
   };
 
@@ -51,9 +46,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await authService.register(data);
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
+  const logout = async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      if (import.meta.env.VITE_IS_DEV) console.error('Logout failed', error);
+    } finally {
+      setUser(null);
+    }
   };
 
   const updateUser = (data: Partial<User>) => {
@@ -63,10 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const refreshUser = async () => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      await fetchUserData();
-    }
+    await fetchUserData();
   };
 
   return (

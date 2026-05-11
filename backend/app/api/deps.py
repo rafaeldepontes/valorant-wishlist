@@ -1,6 +1,6 @@
 import jwt
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Depends, HTTPException, status, Request
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials, APIKeyCookie
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.core.config import settings
 from app.core.db import get_async_session
@@ -11,7 +11,8 @@ from app.services.review_store import ReviewStore
 from app.services.auth import AuthService
 from app.core.errors import ErrorMessages
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
+cookie_scheme = APIKeyCookie(name=settings.auth_cookie_name, auto_error=False)
 
 def get_skin_cache() -> SkinCache:
     return skin_cache_singleton
@@ -29,7 +30,9 @@ def get_auth_service() -> AuthService:
     return auth_service_singleton
 
 async def get_current_user(
+    request: Request,
     auth: HTTPAuthorizationCredentials = Depends(security),
+    cookie_token: str = Depends(cookie_scheme),
     user_store: UserStore = Depends(get_user_store),
     auth_service: AuthService = Depends(get_auth_service),
 ) -> dict:
@@ -39,7 +42,11 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    token = auth.credentials
+    token = cookie_token or (auth.credentials if auth else None)
+    
+    if not token:
+        raise credentials_exception
+
     try:
         payload = auth_service.decode_token(token)
         username: str = payload.get("sub")

@@ -27,7 +27,7 @@ const UserDetailPage: React.FC = () => {
         setWishlist(w);
         setReviews(r);
       } catch (error) {
-        console.error('Failed to fetch user details:', error);
+        if (import.meta.env.VITE_IS_DEV) console.error('Failed to fetch user details:', error);
       } finally {
         setLoading(false);
       }
@@ -78,7 +78,7 @@ const UserDetailPage: React.FC = () => {
             </div>
             <h2 className="text-2xl font-bold mb-1">{userData.display_name || userData.username}</h2>
             <p className="text-valorant-red font-bold text-sm uppercase tracking-widest mb-6">@{userData.username}</p>
-            
+
             <div className="grid grid-cols-2 gap-4 text-sm font-bold uppercase border-t border-valorant-gray/10 pt-6 mb-6">
               <div>
                 <p className="text-valorant-gray/40 mb-1">Status</p>
@@ -115,7 +115,7 @@ const UserDetailPage: React.FC = () => {
               <Heart className="text-valorant-red" fill="currentColor" size={24} />
               <h2 className="text-3xl font-bold uppercase tracking-tighter">Collection <span className="text-valorant-red">Wishlist</span></h2>
             </div>
-            
+
             {wishlist.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {wishlist.map((item) => (
@@ -152,7 +152,7 @@ const UserDetailPage: React.FC = () => {
               <MessageSquare className="text-valorant-red" size={24} />
               <h2 className="text-3xl font-bold uppercase tracking-tighter">Field <span className="text-valorant-red">Reports</span></h2>
             </div>
-            
+
             <div className="bg-valorant-black border border-valorant-gray/10 p-6">
               <ReviewList reviews={reviews} loading={false} />
             </div>

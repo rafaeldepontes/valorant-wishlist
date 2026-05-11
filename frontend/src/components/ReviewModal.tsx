@@ -37,7 +37,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
       const data = await reviewService.getSkinReviews(skinId);
       setReviews(data);
     } catch (error) {
-      console.error('Failed to fetch reviews', error);
+      if (import.meta.env.VITE_IS_DEV) console.error('Failed to fetch reviews', error);
     } finally {
       setLoadingReviews(false);
     }

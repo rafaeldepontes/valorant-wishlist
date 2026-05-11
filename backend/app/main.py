@@ -1,6 +1,6 @@
 import os
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from fastapi.responses import RedirectResponse
@@ -19,6 +19,17 @@ app = FastAPI(
 )
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    # Content-Security-Policy: default-src 'self'; img-src 'self' https://media.valorantapi.com;
+    response.headers["Content-Security-Policy"] = "default-src 'self'; img-src 'self' data: https://media.valorantapi.com; style-src 'self' 'unsafe-inline';"
+    return response
 
 app.add_middleware(
     CORSMiddleware,
