@@ -17,5 +17,8 @@ class Settings(BaseSettings):
     auth_secret_key: str = os.environ.get("AUTH_SECRET_KEY", "keep-it-secret-keep-it-safe")
     auth_algorithm: str = os.environ.get("AUTH_ALGORITHM", "HS256")
     auth_token_expire_minutes: int = 30
+    auth_cookie_name: str = "access_token"
+    auth_cookie_secure: bool = os.environ.get("AUTH_COOKIE_SECURE", "False").lower() == "true"
+    auth_cookie_samesite: str = "lax"
 
 settings = Settings()

@@ -61,11 +61,16 @@ async def get_user(
         internal_id = user_data["id"]
         wishlist_items = await wishlist_store.get(internal_id)
 
-        return {
+        response_data = {
             **user_data,
             "user_id": str(user_data["uuid"]),
             "wishlist_count": len(wishlist_items),
         }
+
+        if str(current_user["uuid"]) != user_id:
+            response_data["email"] = None
+
+        return response_data
     except KeyError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
 
