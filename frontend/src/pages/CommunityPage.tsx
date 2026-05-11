@@ -18,7 +18,7 @@ const CommunityPage: React.FC = () => {
         const response = await userService.listUsers(page, size);
         setData(response);
       } catch (error) {
-        console.error('Failed to fetch users:', error);
+        if (import.meta.env.VITE_IS_DEV) console.error('Failed to fetch users:', error);
       } finally {
         setLoading(false);
       }
@@ -60,8 +60,8 @@ const CommunityPage: React.FC = () => {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {data?.items.map((user) => (
-              <Link 
-                key={user.user_id} 
+              <Link
+                key={user.user_id}
                 to={`/community/${user.user_id}`}
                 className="group bg-valorant-black border border-valorant-gray/10 p-6 text-center hover:border-valorant-red transition-all hover:translate-y-[-4px]"
               >
@@ -70,7 +70,7 @@ const CommunityPage: React.FC = () => {
                 </div>
                 <h3 className="text-xl font-bold mb-1 truncate">{user.display_name || user.username}</h3>
                 <p className="text-valorant-red text-xs font-bold uppercase tracking-widest">@{user.username}</p>
-                
+
                 <div className="mt-6 pt-4 border-t border-valorant-gray/5 opacity-0 group-hover:opacity-100 transition-opacity">
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-valorant-red flex items-center justify-center gap-1">
                     View Profile <ChevronRight size={12} />

@@ -37,7 +37,7 @@ const SkinsPage: React.FC = () => {
       const data = await wishlistService.getByUser(user.user_id);
       setWishlistIds(new Set(data.map(item => item.item_id)));
     } catch (error) {
-      console.error('Failed to fetch wishlist', error);
+      if (import.meta.env.VITE_IS_DEV) console.error('Failed to fetch wishlist', error);
     }
   };
 
@@ -52,7 +52,7 @@ const SkinsPage: React.FC = () => {
           await fetchWishlist();
         }
       } catch (error) {
-        console.error('Failed to fetch skins', error);
+        if (import.meta.env.VITE_IS_DEV) console.error('Failed to fetch skins', error);
         showToast('Failed to load skins', 'error');
       } finally {
         setLoading(false);

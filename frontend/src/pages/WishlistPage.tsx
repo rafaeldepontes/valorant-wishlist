@@ -24,7 +24,7 @@ const WishlistPage: React.FC = () => {
         const data = await wishlistService.getByUser(user.user_id);
         setItems(data);
       } catch (error) {
-        console.error('Failed to fetch wishlist', error);
+        if (import.meta.env.VITE_IS_DEV) console.error('Failed to fetch wishlist', error);
       } finally {
         setLoading(false);
       }
@@ -82,7 +82,7 @@ const WishlistPage: React.FC = () => {
               <div className="w-full md:w-48 aspect-video bg-valorant-dark/60 p-2">
                 {item.image && <img src={item.image} alt={item.skin_name} className="w-full h-full object-contain" />}
               </div>
-              
+
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs font-bold bg-valorant-red/10 text-valorant-red px-2 py-0.5 uppercase tracking-tighter border border-valorant-red/20">

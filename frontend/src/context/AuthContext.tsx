@@ -23,7 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const userData = await userService.getMe();
       setUser(userData);
     } catch (error) {
-      console.error('Failed to fetch user', error);
+      if (import.meta.env.VITE_IS_DEV) if (import.meta.env.VITE_IS_DEV) console.error('Failed to fetch user', error);
       localStorage.removeItem('token');
       setUser(null);
     }
