@@ -36,6 +36,7 @@ async def login(
         httponly=True,
         secure=settings.auth_cookie_secure,
         samesite=settings.auth_cookie_samesite,
+        domain=settings.auth_cookie_domain,
         max_age=settings.auth_token_expire_minutes * 60,
     )
     
@@ -48,6 +49,7 @@ async def logout(response: Response):
         httponly=True,
         secure=settings.auth_cookie_secure,
         samesite=settings.auth_cookie_samesite,
+        domain=settings.auth_cookie_domain,
     )
     return {"message": "Successfully logged out"}
 
