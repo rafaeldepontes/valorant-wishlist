@@ -1,0 +1,11 @@
+fastapi==0.135.2
+pydantic==2.12.5
+pydantic-settings==2.13.1
+slowapi==0.1.9
+uvicorn==0.42.0
+argon2-cffi
+PyJWT
+sqlmodel
+asyncpg
+python-dotenv
+email-validator
