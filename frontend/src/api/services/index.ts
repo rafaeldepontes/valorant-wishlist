@@ -4,6 +4,9 @@ import { User, Skin, WishlistItem, Review, TokenResponse, PaginatedResponse, Use
 export const authService = {
   login: async (data: any): Promise<TokenResponse> => {
     const response = await loginAPI.post<TokenResponse>('/auth/login', data);
+    if (response.data.access_token) {
+      localStorage.setItem('access_token', response.data.access_token);
+    }
     return response.data;
   },
   register: async (data: any): Promise<User> => {
@@ -12,6 +15,7 @@ export const authService = {
   },
   logout: async (): Promise<void> => {
     await loginAPI.post('/auth/logout');
+    localStorage.removeItem('access_token');
   },
 };
 
