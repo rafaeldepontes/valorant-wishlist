@@ -1,0 +1,25 @@
+import os
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.orm import sessionmaker
+from sqlmodel.ext.asyncio.session import AsyncSession
+from app.core.config import settings
+
+dev: str = os.environ.get("DEV", "")
+if dev != "":
+    engine = create_async_engine(settings.database_url, echo=True, future=True)
+else:
+    engine = create_async_engine(settings.database_url, echo=False, future=True, connect_args={"ssl": "require"})
+
+async def get_async_session() -> AsyncSession:
+    async_session = sessionmaker(
+        engine, class_=AsyncSession, expire_on_commit=False
+    )
+    async with async_session() as session:
+        yield session
+
+async def init_db():
+    from sqlmodel import SQLModel
+    from app.models.user import User
+
+    async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)

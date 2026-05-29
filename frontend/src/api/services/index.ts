@@ -1,17 +1,17 @@
-import api from '../client';
+import { api, loginAPI } from '../client';
 import { User, Skin, WishlistItem, Review, TokenResponse, PaginatedResponse, UserList } from '../../types';
 
 export const authService = {
   login: async (data: any): Promise<TokenResponse> => {
-    const response = await api.post<TokenResponse>('/auth/login', data);
+    const response = await loginAPI.post<TokenResponse>('/auth/login', data);
     return response.data;
   },
   register: async (data: any): Promise<User> => {
-    const response = await api.post<User>('/auth/register', data);
+    const response = await loginAPI.post<User>('/auth/register', data);
     return response.data;
   },
   logout: async (): Promise<void> => {
-    await api.post('/auth/logout');
+    await loginAPI.post('/auth/logout');
   },
 };
 
