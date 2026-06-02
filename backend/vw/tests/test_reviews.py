@@ -99,3 +99,55 @@ async def test_get_user_reviews_privacy(client, mock_review_store, mock_user_sto
     assert len(data) == 1
     assert data[0]["comment"] == "Public review"
     assert data[0]["username"] == "otheruser"
+
+@pytest.mark.asyncio
+async def test_get_skin_reviews_anonymous_enrichment(client, mock_review_store, mock_user_store, mock_skin_cache):
+    mock_review_store.get_by_skin.return_value = [
+        {
+            "uuid": uuid4(),
+            "user_id": 1,
+            "item_id": "s1",
+            "rating": 5,
+            "comment": "Anonymous review",
+            "is_anonymous": True,
+            "created_at": "now",
+            "updated_at": "now"
+        }
+    ]
+    mock_skin_cache.get.return_value = {"weapon_name": "Vandal", "skin_name": "Reaver"}
+
+    mock_result = MagicMock()
+    mock_result.first.return_value = MagicMock(uuid="u1", username="testuser")
+    mock_user_store.session.exec.return_value = mock_result
+
+    response = client.get("/reviews/skin/s1")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]["username"] is None
+    assert data[0]["user_id"] is None
+
+@pytest.mark.asyncio
+async def test_enrich_review_unknown_user(client, mock_review_store, mock_user_store, mock_skin_cache):
+    mock_review_store.get_by_skin.return_value = [
+        {
+            "uuid": uuid4(),
+            "user_id": 999,
+            "item_id": "s1",
+            "rating": 3,
+            "comment": "Where am I?",
+            "is_anonymous": False,
+            "created_at": "now",
+            "updated_at": "now"
+        }
+    ]
+    mock_skin_cache.get.return_value = {"weapon_name": "Vandal", "skin_name": "Reaver"}
+
+    mock_result = MagicMock()
+    mock_result.first.return_value = None
+    mock_user_store.session.exec.return_value = mock_result
+
+    response = client.get("/reviews/skin/s1")
+    assert response.status_code == 200
+    data = response.json()
+    assert data[0]["username"] == "Unknown User"

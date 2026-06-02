@@ -4,6 +4,11 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.api.deps import get_user_store, get_wishlist_store, get_skin_cache, get_current_user, get_review_store, get_auth_service
 
+@pytest.fixture(autouse=True)
+def mock_lifespan_deps(monkeypatch):
+    monkeypatch.setattr("app.core.lifespan.init_db", AsyncMock())
+    monkeypatch.setattr("app.core.lifespan.skin_cache_singleton.load", AsyncMock())
+
 @pytest.fixture
 def mock_user_store():
     return AsyncMock()
@@ -25,6 +30,7 @@ def mock_skin_cache():
     mock = AsyncMock()
     mock.len = MagicMock(return_value=0)
     mock.exists = AsyncMock(return_value=True)
+    mock.list = []
     return mock
 
 @pytest.fixture
