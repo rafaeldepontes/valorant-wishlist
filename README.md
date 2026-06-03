@@ -1,40 +1,64 @@
-# Valorant-Wishlist
+# Valorant Wishlist
 
-A full-stack application developed for UNIFOR (University of Fortaleza) that allows users to explore Valorant skins, manage a personal wishlist, and share community reviews. The project consists of a high-performance FastAPI backend and a responsive React frontend.
+A high-performance, full-stack platform designed for the Valorant community. Users can explore a comprehensive skin catalog, manage personal wishlists with real-time tracking, and engage in meaningful community reviews.
 
-## Project Structure
+Developed for the University of Fortaleza (UNIFOR), this project demonstrates a modern approach to web application architecture, combining a microservices-lite backend with a responsive, type-safe frontend.
 
-- `/backend`: FastAPI (Python) RESTful API with PostgreSQL and JWT authentication.
-- `/frontend`: Vite + React (TypeScript) SPA with Tailwind CSS.
+## Architecture
 
-## Core Features
+The project follows a distributed architecture to separate concerns and ensure scalability:
 
-- Full user authentication system (Login/Register).
-- Real-time skin wishlist management.
-- Community review system for all in-game items.
-- Searchable skin catalog with pagination.
-- Personalized agent profiles.
+- **Core API (/backend/vw)**: Handles the main business logic, including skin catalog management, user profiles, wishlist operations, and community reviews.
+- **Auth API (/backend/vw-login)**: A dedicated service for secure user authentication, registration, and session management using JWT and HTTP-only cookies.
+- **Frontend (/frontend)**: A modern React application built with Vite and TypeScript, featuring a specialized Valorant-themed UI and centralized state management.
+
+## Key Features
+
+- **Comprehensive Catalog**: Browse all Valorant skins with detailed metadata and high-quality imagery.
+- **Smart Wishlist**: Track desired items, set priorities, and manage your collection progress.
+- **Community Reviews**: Share feedback and ratings on skins, with support for anonymous contributions.
+- **Agent Profiles**: Personalized user dashboards with favorite weapon highlights and wishcount metrics.
+- **Secure Authentication**: Robust login/register system with rate limiting and secure session handling.
+
+## Technologies
+
+### Backend
+- **FastAPI**: Modern, fast (high-performance) web framework for building APIs with Python 3.10+.
+- **PostgreSQL**: Relational database for persistent storage.
+- **SQLAlchemy**: SQL Toolkit and Object-Relational Mapper.
+- **Pydantic**: Data validation and settings management using Python type annotations.
+- **Slowapi**: Rate limiting for enhanced security.
+
+### Frontend
+- **React 18**: UI library for building interactive user interfaces.
+- **TypeScript**: Static typing for improved developer experience and code reliability.
+- **Vite**: Ultra-fast build tool and development server.
+- **Tailwind CSS**: Utility-first CSS framework for custom, responsive designs.
+- **Axios**: Modular service layer for API communication.
 
 ## Quick Start
 
-### 1. Backend Setup
-Navigate to the `/backend` directory:
-- Follow the instructions in [backend/README.md](./backend/README.md) to set up your Python environment.
-- Ensure your PostgreSQL database is configured.
-- Run the server: `uvicorn app.main:app --reload`
+### Prerequisites
+- Python 3.10+
+- Node.js (Latest LTS recommended)
+- PostgreSQL instance
 
-### 2. Frontend Setup
-Navigate to the `/frontend` directory:
-- Follow the instructions in [frontend/README.md](./frontend/README.md) to install dependencies.
-- Run the development server: `npm run dev`
+### 1. Backend Services
+Both services (vw and vw-login) require their own environment configuration.
+- Navigate to each service directory: backend/vw and backend/vw-login.
+- Follow the specific instructions in their respective README.md files for setup and database migrations.
 
-## API Reference
+### 2. Frontend Application
+- Navigate to the frontend directory.
+- Install dependencies: npm install
+- Start the development server: npm run dev
 
-The backend provides a complete Swagger UI documentation available at `/docs` when the server is running. Key modules include:
-- Skins: `/skins`
-- Users: `/users`
-- Wishlist: `/wishlist`
-- Reviews: `/reviews`
+## Documentation
+
+Detailed technical documentation is available in the following locations:
+- [Backend Wiki](./backend/PROJECT_WIKI.md)
+- [Frontend Wiki](./frontend/PROJECT_WIKI.md)
+- [Installation Guide](./backend/vw/doc/INSTALL.md)
 
 ## License
 

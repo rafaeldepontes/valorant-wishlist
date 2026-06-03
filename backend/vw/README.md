@@ -1,298 +1,82 @@
-# Valorant-Wishlist
+# Valorant Wishlist - Core API
 
-Project developed for UNIFOR (University of Fortaleza), a RESTful API that allows users to create and manage a wishlist of Valorant in-game items, enabling them to track desired skins and organize their preferred purchases.
+The Core API service for the Valorant Wishlist platform. This service manages the skin catalog, user profiles, wishlists, and community reviews.
 
 ## Features
 
-- Create and manage users
-- Add items to a user's wishlist
-- Update wishlist entries
-- Remove wishlist entries
-- Create and manage skin reviews
-- Retrieve available skins
-- Check API health
+- **Skin Catalog**: Search and retrieve the full database of Valorant skins.
+- **User Profiles**: Manage agent identities, bios, and favorite weapons.
+- **Wishlist Management**: Real-time tracking of desired items with priority and status updates.
+- **Community Reviews**: Share and browse community feedback for all in-game items.
+- **Health Monitoring**: Standardized health check endpoints.
 
-## Installation:
+## Setup & Installation
 
-Inside of `./doc`, there is a installation guide. [installation guide](./doc/INSTALL.md)
+Detailed installation instructions can be found in the [Installation Guide](./doc/INSTALL.md).
+
+### Quick Start
+1. Ensure PostgreSQL is running.
+2. Configure your .env file based on .env.example.
+3. Install dependencies: pip install -r requirements.txt.
+4. Run the server: uvicorn app.main:app --reload.
 
 ## API Endpoints
 
 ### Skins
-
-| Method | Route  | Description                 |
-| ------ | ------ | --------------------------- |
-| GET    | /skins | Returns the available skins |
+| Method | Route | Description |
+| :--- | :--- | :--- |
+| GET | /skins | Returns a paginated list of available skins |
 
 ### Users
-
-| Method | Route            | Description            |
-| ------ | ---------------- | ---------------------- |
-| POST   | /users           | Creates a new user     |
-| GET    | /users/{user_id} | Retrieves a user by ID |
-| PATCH  | /users/{user_id} | Updates a user by ID   |
+| Method | Route | Description |
+| :--- | :--- | :--- |
+| GET | /users | Lists all agents (paginated) |
+| GET | /users/me | Retrieves the authenticated user's profile |
+| GET | /users/{user_id} | Retrieves a specific agent's profile by UUID |
+| PATCH | /users/{user_id} | Updates agent profile info (Bio, Display Name, etc.) |
 
 ### Wishlist
-
-| Method | Route                         | Description                         |
-| ------ | ----------------------------- | ----------------------------------- |
-| POST   | /wishlist                     | Adds an item to a user's wishlist   |
-| GET    | /wishlist/{user_id}           | Lists all wishlist items for a user |
-| PATCH  | /wishlist/{user_id}/{item_id} | Updates a wishlist item             |
-| DELETE | /wishlist/{user_id}/{item_id} | Deletes a wishlist item             |
+| Method | Route | Description |
+| :--- | :--- | :--- |
+| POST | /wishlist | Adds a new item to the user's wishlist |
+| GET | /wishlist/{user_id} | Lists all wishlist items for a specific user |
+| PATCH | /wishlist/{user_id}/{item_id} | Updates a wishlist item (Notes, Status, Priority) |
+| DELETE | /wishlist/{user_id}/{item_id} | Removes an item from the wishlist |
 
 ### Reviews
-
-| Method | Route                  | Description                        |
-| ------ | ---------------------- | ---------------------------------- |
-| POST   | /reviews               | Creates a new review for a skin    |
-| GET    | /reviews/skin/{item_id} | Lists all reviews for a skin       |
-| GET    | /reviews/user/{user_id} | Lists all reviews by a user        |
-| PATCH  | /reviews/{review_id}   | Updates a review                   |
-| DELETE | /reviews/{review_id}   | Deletes a review                   |
-
-### Health
-
-| Method | Route         | Description                   |
-| ------ | ------------- | ----------------------------- |
-| GET    | /health-check | Returns the API health status |
+| Method | Route | Description |
+| :--- | :--- | :--- |
+| POST | /reviews | Submits a new community review for a skin |
+| GET | /reviews/skin/{item_id} | Lists all reviews for a specific skin |
+| GET | /reviews/user/{user_id} | Lists all reviews submitted by a specific user |
+| PATCH | /reviews/{review_id} | Updates an existing review |
+| DELETE | /reviews/{review_id} | Deletes a review |
 
 ## Data Models
 
-### UserCreate
-
-Required fields:
-
-- `user_id`
-- `username`
-- `email`
-- `bio`
-
-Optional fields:
-
-- `display_name`
-- `favorite_weapon`
-
-### UserUpdate
-
-Required fields:
-
-- `bio`
-
-Optional fields:
-
-- `username`
-- `email`
-- `display_name`
-- `favorite_weapon`
-
 ### UserOut
-
-Returned fields:
-
-- `user_id`
-- `username`
-- `email`
-- `display_name`
-- `favorite_weapon`
-- `wishlist_count`
-- `status`
-- `created_at`
-- `updated_at`
-- `bio`
-
-### WishlistCreate
-
-Required fields:
-
-- `user_id`
-- `item_id`
-
-Optional fields:
-
-- `notes`
-- `priority` (default: `1`)
-- `notify_on_sale` (default: `false`)
-
-### WishlistUpdate
-
-Optional fields:
-
-- `notes`
-- `favorite`
-- `status`
-- `notify_on_sale`
-- `priority`
+- user_id: UUID string
+- username: Unique identifier
+- display_name: Agent's public name
+- favorite_weapon: Highlighted weapon
+- wishlist_count: Number of items in wishlist
+- bio: Agent biography
 
 ### WishlistOut
-
-Returned fields:
-
-- `user_id`
-- `item_id`
-- `notes`
-- `priority`
-- `notify_on_sale`
-- `status`
-- `created_at`
-- `updated_at`
-- `weapon_name`
-- `skin_name`
-- `image`
-
-### ReviewCreate
-
-Required fields:
-
-- `user_id`
-- `item_id`
-- `rating` (1-5)
-- `comment`
-- `is_anonymous`
+- user_id: Owner's UUID
+- item_id: Skin UUID
+- notes: Personal notes
+- priority: Numeric priority (0-3)
+- status: Tracking status (e.g., "watching", "acquired")
+- skin_name: Human-readable name
+- image: URL to skin asset
 
 ### ReviewOut
-
-Returned fields:
-
-- `review_id`
-- `user_id`
-- `username`
-- `item_id`
-- `weapon_name`
-- `skin_name`
-- `rating`
-- `comment`
-- `is_anonymous`
-- `created_at`
-- `updated_at`
-
-## Example Requests
-
-### Create user
-
-```bash
-curl -X 'POST' \
-  'https://valorant-wishlist.onrender.com/users' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "user_id": "user-001",
-  "username": "test",
-  "email": "test@example.com",
-  "display_name": "Test",
-  "favorite_weapon": "Operator",
-  "bio": "Valorant pro player"
-}'
-```
-
-### Add item to wishlist
-
-```bash
-curl -X 'POST' \
-  'https://valorant-wishlist.onrender.com/wishlist' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "user_id": "user-001",
-  "item_id": "4e459b3b-4dab-934f-1d77-bdbe75b6fcca",
-  "notes": "Awesome skin",
-  "priority": 2,
-  "notify_on_sale": true
-}'
-```
-
-### Get a user
-
-```bash
-curl -X 'GET' \
-  'https://valorant-wishlist.onrender.com/users/1' \
-  -H 'accept: application/json'
-```
-
-### Get a user wishlist
-
-```bash
-curl -X 'GET' \
-  'https://valorant-wishlist.onrender.com/wishlist/user-001' \
-  -H 'accept: application/json'
-```
-
-### Update a wishlist item
-
-```bash
-curl -X 'PATCH' \
-  'https://valorant-wishlist.onrender.com/wishlist/user-001/4e459b3b-4dab-934f-1d77-bdbe75b6fcca' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "notes": "Amazing skin (owned)",
-  "favorite": true,
-  "status": "acquired",
-  "notify_on_sale": false,
-  "priority": 0
-}'
-```
-
-### Update user info
-
-```bash
-curl -X 'PATCH' \
-  'https://valorant-wishlist.onrender.com/users/user-001' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "username": "test",
-  "email": "test@example.com",
-  "display_name": "Test",
-  "favorite_weapon": "Operator",
-  "bio": "Updated bios"
-}'
-```
-
-### Delete a wishlist item
-
-```bash
-curl -X 'DELETE' \
-  'https://valorant-wishlist.onrender.com/wishlist/user-001/4e459b3b-4dab-934f-1d77-bdbe75b6fcca' \
-  -H 'accept: */*'
-```
-
-### Health Check
-
-```bash
-curl -X 'GET' \
-  'https://valorant-wishlist.onrender.com/health-check' \
-  -H 'accept: application/json'
-```
-
-### Create review
-
-```bash
-curl -X 'POST' \
-  'https://valorant-wishlist.onrender.com/reviews' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "user_id": "user-001",
-  "item_id": "4e459b3b-4dab-934f-1d77-bdbe75b6fcca",
-  "rating": 5,
-  "comment": "Best skin in the game!",
-  "is_anonymous": false
-}'
-```
-
-### Get skin reviews
-
-```bash
-curl -X 'GET' \
-  'https://valorant-wishlist.onrender.com/reviews/skin/4e459b3b-4dab-934f-1d77-bdbe75b6fcca' \
-  -H 'accept: application/json'
-```
-
-## Responses
-
-The API returns validation errors with a standard error payload when request data is invalid.
+- review_id: Review UUID
+- username: Author's name
+- rating: 1-5 star rating
+- comment: Review text
+- is_anonymous: Privacy flag
 
 ## License
-
-This project was developed for academic purposes.
+Developed for academic purposes at the University of Fortaleza (UNIFOR).
